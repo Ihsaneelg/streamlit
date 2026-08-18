@@ -1,13 +1,16 @@
 import streamlit as st
 import pandas as pd
+from sqlalchemy import create_engine
 
 st.title("📊 Dashboard Capteurs")
 
-# Connexion à la base de données
-conn = st.connection("mysql", type="sql")
+DATABASE_URL = st.secrets["DATABASE_URL"]
+engine = create_engine(DATABASE_URL)
 
-# Charger les données
-df = conn.query("SELECT * FROM donnees_capteurs ORDER BY timestamp DESC LIMIT 50;", ttl=5)
+df = pd.read_sql(
+    "SELECT * FROM donnees_capteurs ORDER BY timestamp DESC LIMIT 50;",
+    engine
+)
 
 if not df.empty:
     st.metric("Température", f"{df.iloc[0]['temperature']} °C")
